@@ -132,6 +132,9 @@ let demoTourActive = false;
 let demoTourStepIndex = 0;
 const PROGRAM_DEMO_STEPS = [
   { view: "dashboard", selector: "#topbarDashboardBtn", title: "Pulpit", text: "Tu zaczyna się praca. Pulpit zbiera Twoje zlecenia, terminy i najważniejsze informacje z projektów." },
+  { view: "dashboard", selector: "#sidebarCollapseBtn", title: "Zwijany panel projektów", text: "Panel PROJEKTY można zwinąć, aby uzyskać więcej miejsca na harmonogram, i ponownie rozwinąć tym samym przyciskiem." },
+  { view: "projects", selector: "#projectList", title: "Wybierz projekt", text: "Kliknij projekt DW000 w panelu po lewej. Wybrany projekt staje się aktywny, a wszystkie górne moduły pokazują jego dane." },
+  { view: "projects", selector: "#projectModuleTabs", title: "Nawigacja po projekcie", text: "Po wybraniu projektu przechodzisz między modułami: Pulpit, Eksplorator, Widok ogólny, Pisma, Warunki techniczne i Branże. Nie musisz ponownie wyszukiwać projektu." },
   { view: "dashboard", selector: ".assignment-timeline, #dashboardView", title: "Oś zleceń", text: "Oś pokazuje obciążenie i terminy. Przykładowy projekt DW000 zawiera gotowe etapy, zadania i zlecenia, więc wszystkie widoki można od razu wypróbować." },
   { view: "dashboard", selector: ".task-bundle-panel", title: "Zadania do wykonania", text: "Na środku Pulpitu znajdują się zlecenia do wykonania: na dziś, na jutro oraz w wybranym zakresie. Przykładowe zlecenia są już dodane, więc od razu widać sposób pracy." },
   { view: "assignment-entry", selector: "#assignmentForm", title: "Wpisz nowe zlecenie", text: "Wpisujesz nazwę i krótki opis zlecenia. Demo wypełniło przykład: „Przygotuj pomiary geodezyjne”. Ustawiasz też termin i priorytet." },
@@ -145,7 +148,7 @@ const PROGRAM_DEMO_STEPS = [
   { view: "full", selector: "#dnGanttViewport", title: "Harmonogram projektu", text: "Możesz przewijać, skalować i przesuwać elementy bez utraty aktualnego położenia widoku." },
   { view: "letters", selector: "#topbarLettersBtn", title: "Pisma", text: "W Pismach zobaczysz przykładową korespondencję wychodzącą i przychodzącą z folderu DW000." },
   { view: "letters", selector: ".letters-split, #lettersOutgoing", title: "Korespondencja", text: "Pisma można wyszukiwać, sortować, łączyć w nazwane wątki i obsługiwać bezpośrednio z programu." },
-  { view: "letters", selector: "#lettersThreadPanel", title: "Wątki", text: "Wątki układają kolejne pisma poziomo i pozwalają szybko przejść przez całą historię sprawy." },
+  { view: "letters-thread", selector: "#lettersThreadPanel", title: "Wątki", text: "Przykładowy wątek „Warunki techniczne – gestor sieci” jest zaznaczony. Widać w nim kolejno pismo wysłane i otrzymaną odpowiedź, ułożone poziomo według daty." },
   { view: "technical", selector: "#technicalPage", title: "Warunki techniczne", text: "Ten moduł jest celowo otwarty na rozwój. Tutaj czekamy na pomysły użytkowników: napiszcie, jakie dane, przypomnienia i automatyzacje powinny się tu znaleźć." },
   { view: "branches", selector: "#branchesBoard", title: "Branże", text: "Tablica branżowa porządkuje uzgodnienia i kontakty w kolumnach, które można dopasować do sposobu pracy zespołu." },
   { view: "chat-notification", selector: "#topbarChatBtn", title: "Powiadomienie o wiadomości", text: "Ikona Komunikatora w górnym pasku pokazuje licznik nowych wiadomości. W przykładzie „Pracownik Demo” wysłał pytanie dotyczące projektu DW000 — kliknij ikonę, aby otworzyć rozmowę." },
@@ -252,7 +255,7 @@ let letterFolderColors = {};
 let letterHiddenExtensions = [];
 let lettersSplitPercent = 50;
 let lettersThreadHeight = 230;
-let lettersThreadListWidth = 198;
+let lettersThreadListWidth = 270;
 let lettersThreadCardWidth = 243;
 let selectedLetters = { incoming: "", outgoing: "" };
 let focusedLetterLink = { incoming: [], outgoing: [] };
@@ -1297,7 +1300,7 @@ function applyUserState(saved = {}) {
   if (Number.isFinite(saved.lettersThreadHeight)) lettersThreadHeight = Math.max(120, Number(saved.lettersThreadHeight));
   if (Number.isFinite(saved.lettersThreadListWidth)) {
     const savedWidth = Number(saved.lettersThreadListWidth);
-    lettersThreadListWidth = savedWidth === 220 ? 198 : Math.max(150, savedWidth);
+    lettersThreadListWidth = savedWidth === 220 || savedWidth === 198 ? 270 : Math.max(150, savedWidth);
   }
   if (Number.isFinite(saved.lettersThreadCardWidth)) lettersThreadCardWidth = clamp(Number(saved.lettersThreadCardWidth), 180, 420);
   if (Array.isArray(saved.letterVisibleColumns)) letterVisibleColumns = normalizeLetterVisibleColumns(saved.letterVisibleColumns);
@@ -3249,14 +3252,14 @@ function applyLettersThreadListWidth() {
     return;
   }
   const maximum = Math.max(150, Math.min(420, panelWidth - 360));
-  lettersThreadListWidth = clamp(Number(lettersThreadListWidth) || 198, 150, maximum);
+  lettersThreadListWidth = clamp(Number(lettersThreadListWidth) || 270, 150, maximum);
   el.lettersThreadPanel.style.setProperty("--letters-thread-list-width", `${Math.round(lettersThreadListWidth)}px`);
 }
 
 function changeLettersThreadListWidth(factor) {
   const panelWidth = el.lettersThreadPanel?.clientWidth || window.innerWidth;
   const maximum = Math.max(150, Math.min(420, panelWidth - 360));
-  lettersThreadListWidth = clamp(Math.round((Number(lettersThreadListWidth) || 198) * factor), 150, maximum);
+  lettersThreadListWidth = clamp(Math.round((Number(lettersThreadListWidth) || 270) * factor), 150, maximum);
   applyLettersThreadListWidth();
   persistUserState();
 }
@@ -5725,6 +5728,12 @@ function changeDemoTourStep(delta) {
 function activateDemoView(view) {
   const project = projects.find((item) => item.id === activeProjectId) || selectedProject() || projects[0];
   if (view === "dashboard") showHomeDashboard();
+  else if (view === "projects") {
+    sidebarCollapsed = false;
+    applySidebarState();
+    showHomeDashboard();
+    renderProjects();
+  }
   else if (view === "assignment" || view === "assignment-entry" || view === "assignment-edit") {
     showHomeDashboard();
     planningProjectId = project?.id || planningProjectId;
@@ -5743,6 +5752,15 @@ function activateDemoView(view) {
   else if (view === "secret") openSecretModule(project?.id);
   else if (view === "full" && project) { sidebarModuleMode = "full"; openProject(project); }
   else if (view === "letters") openLettersModule(project?.id);
+  else if (view === "letters-thread") {
+    openLettersModule(project?.id);
+    void loadLetters(project?.id).then(() => {
+      const thread = projectLetterThreads(project?.id).find((item) => item.id === "thread-demo-warunki-techniczne") || projectLetterThreads(project?.id)[0];
+      if (!thread) return;
+      focusedLetterLink = { incoming: [...(thread.incoming || [])], outgoing: [...(thread.outgoing || [])] };
+      renderLetters();
+    });
+  }
   else if (view === "technical") openTechnicalModule(project?.id, "technical");
   else if (view === "branches") openTechnicalModule(project?.id, "branches");
   else if (view === "chat-notification") {

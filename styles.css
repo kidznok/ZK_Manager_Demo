@@ -11087,7 +11087,7 @@ body.resizing-letters-thread {
   min-height: 0;
   margin: 0 8px 8px;
   display: grid;
-  grid-template-columns: minmax(150px, var(--letters-thread-list-width, 220px)) 7px minmax(0, 1fr);
+  grid-template-columns: minmax(150px, var(--letters-thread-list-width, 270px)) 7px minmax(0, 1fr);
   overflow: hidden;
   border: 1px solid #b9cad2;
   border-radius: 6px;
