@@ -5835,7 +5835,13 @@ function positionDemoTour() {
   el.demoTourCard.style.width = `${cardWidth}px`;
   const cardHeight = el.demoTourCard.getBoundingClientRect().height || 190;
   const belowTop = top + height + 12;
-  const cardTop = belowTop + cardHeight <= window.innerHeight - 10 ? belowTop : Math.max(10, top - cardHeight - 12);
+  const fitsBelow = belowTop + cardHeight <= window.innerHeight - 10;
+  const fitsAbove = top - cardHeight - 12 >= 10;
+  const cardTop = fitsBelow
+    ? belowTop
+    : fitsAbove
+      ? top - cardHeight - 12
+      : Math.max(10, window.innerHeight - cardHeight - 18);
   const cardLeft = Math.max(12, Math.min(left, window.innerWidth - cardWidth - 12));
   el.demoTourCard.style.left = `${cardLeft}px`;
   el.demoTourCard.style.top = `${cardTop}px`;
