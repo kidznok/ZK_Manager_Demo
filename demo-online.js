@@ -4,7 +4,6 @@
   const STATE_KEY = "zk-manager-online-demo-state";
   const USER_KEY = "zk-manager-online-demo-user";
   const WELCOME_KEY = "zk-manager-online-demo-welcome-seen";
-  const DEMO_HINT_KEY = "zk-manager-online-demo-hint-seen";
   const CHAT_KEY = "zk-manager-online-demo-chat";
   const ROOT = "C:\\DEMO\\DW000";
   const demoThread = {
@@ -179,10 +178,7 @@
       hint.addEventListener("click", (event) => { if (event.target === hint) closeHint(); });
       document.body.append(hint);
     };
-    if (localStorage.getItem(WELCOME_KEY) === "1") {
-      showDemoHint();
-      return;
-    }
+    if (localStorage.getItem(WELCOME_KEY) === "1") return;
     const welcome = document.createElement("div");
     welcome.className = "online-demo-welcome";
     welcome.setAttribute("role", "dialog");
@@ -200,7 +196,7 @@
     const closeWelcome = () => {
       localStorage.setItem(WELCOME_KEY, "1");
       welcome.remove();
-      window.setTimeout(showDemoHint, 120);
+      window.setTimeout(() => document.querySelector("#topbarDemoBtn")?.click(), 180);
     };
     welcome.querySelector(".online-demo-welcome-close").addEventListener("click", closeWelcome);
     welcome.querySelector(".online-demo-welcome-start").addEventListener("click", closeWelcome);

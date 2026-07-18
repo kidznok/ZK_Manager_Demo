@@ -131,10 +131,9 @@ let secretExplorerViews = {};
 let demoTourActive = false;
 let demoTourStepIndex = 0;
 const PROGRAM_DEMO_STEPS = [
-  { view: "dashboard", selector: "#topbarDashboardBtn", title: "Pulpit", text: "Tu zaczyna się praca. Pulpit zbiera Twoje zlecenia, terminy i najważniejsze informacje z projektów." },
-  { view: "dashboard", selector: "#sidebarCollapseBtn", title: "Zwijany panel projektów", text: "Panel PROJEKTY można zwinąć, aby uzyskać więcej miejsca na harmonogram, i ponownie rozwinąć tym samym przyciskiem." },
-  { view: "projects", selector: "#projectList", title: "Wybierz projekt", text: "Kliknij projekt DW000 w panelu po lewej. Wybrany projekt staje się aktywny, a wszystkie górne moduły pokazują jego dane." },
+  { view: "projects", selector: "#projectsSidebar", title: "Panel PROJEKTY", text: "Najpierw wybierz projekt DW000 z panelu po lewej. Panel możesz zwinąć, aby uzyskać więcej miejsca, i ponownie rozwinąć przyciskiem w jego nagłówku." },
   { view: "projects", selector: "#projectModuleTabs", title: "Nawigacja po projekcie", text: "Po wybraniu projektu przechodzisz między modułami: Pulpit, Eksplorator, Widok ogólny, Pisma, Warunki techniczne i Branże. Nie musisz ponownie wyszukiwać projektu." },
+  { view: "dashboard", selector: "#topbarDashboardBtn", title: "Pulpit", text: "Po wybraniu projektu otwierasz Pulpit. Zbiera on Twoje zlecenia, terminy i najważniejsze informacje z aktywnego projektu." },
   { view: "dashboard", selector: ".assignment-timeline, #dashboardView", title: "Oś zleceń", text: "Oś pokazuje obciążenie i terminy. Przykładowy projekt DW000 zawiera gotowe etapy, zadania i zlecenia, więc wszystkie widoki można od razu wypróbować." },
   { view: "dashboard", selector: ".task-bundle-panel", title: "Zadania do wykonania", text: "Na środku Pulpitu znajdują się zlecenia do wykonania: na dziś, na jutro oraz w wybranym zakresie. Przykładowe zlecenia są już dodane, więc od razu widać sposób pracy." },
   { view: "assignment-entry", selector: "#assignmentForm", title: "Wpisz nowe zlecenie", text: "Wpisujesz nazwę i krótki opis zlecenia. Demo wypełniło przykład: „Przygotuj pomiary geodezyjne”. Ustawiasz też termin i priorytet." },
@@ -158,6 +157,7 @@ const PROGRAM_DEMO_STEPS = [
   { view: "chat", selector: "#teamBoardOpen", title: "Wspólna tablica", text: "Ten przycisk otwiera wspólną tablicę. Możecie rysować po pustej kartce albo po wysłanym obrazie i wspólnie nanosić uwagi." },
   { view: "chat-board", selector: "#sharedBoardCanvas", title: "Rysowanie i uwagi", text: "Na tablicy rysujesz odręcznie, wybierasz kolor i przesyłasz zespołowi gotowe uwagi. Zmiany są widoczne dla uczestników rozmowy." },
   { view: "chat", selector: "#teamChatPathBtn", title: "Link do pliku lub folderu", text: "Wklej ścieżkę w polu wiadomości i kliknij ostatni przycisk z ikoną łańcucha. Program zamieni ją w link z osobnym otwieraniem pliku oraz folderu, w którym plik się znajduje." },
+  { view: "update-notification", selector: "#updateNoticeBtn", title: "Aktualizacje programu", text: "ZK Manager jest stale rozwijany i ulepszany. Gdy pojawi się nowa wersja, ikona w górnym pasku pokaże powiadomienie o aktualizacji — dzięki temu użytkownik od razu wie, że może skorzystać z nowych funkcji i poprawek." },
   { view: "settings", selector: "#settingsPanel", title: "Ustawienia", text: "Na końcu są ustawienia użytkownika i programu: wygląd, ścieżki danych, projekty, pracownicy, branże oraz aktualizacje." },
   { view: "dashboard", selector: "#topbarDemoBtn", final: true, title: "ZK PROJEKT", text: "Dziękujemy za obejrzenie ZK Managera. Zapraszamy do współpracy, testowania programu i dzielenia się pomysłami — wspólnie możemy rozwijać narzędzie dopasowane do rzeczywistej pracy projektowej." }
 ];
@@ -5778,6 +5778,16 @@ function activateDemoView(view) {
   } else if (view === "chat-board") {
     if (!chatOpen) setChatOpen(true);
     void openSharedBoard();
+  } else if (view === "update-notification") {
+    if (sharedBoardOpen) closeSharedBoard();
+    setChatOpen(false);
+    el.settingsPanel?.classList.add("hidden");
+    el.updateNoticeBtn?.classList.remove("hidden");
+    el.updateNoticeBtn?.classList.add("active");
+    if (el.updateNoticeBadge) {
+      el.updateNoticeBadge.textContent = "1";
+      el.updateNoticeBadge.classList.remove("hidden");
+    }
   } else if (view === "settings") {
     if (sharedBoardOpen) closeSharedBoard();
     setChatOpen(false);
