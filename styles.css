@@ -16614,3 +16614,21 @@ body.sidebar-collapsed .app-sidebar.projects-panel > header > .project-header-co
   font: 800 10px/1 "Segoe UI", sans-serif;
   pointer-events: none;
 }
+
+/* Ostateczne wymuszenie: natywny kalendarz ma byc jasny niezaleznie od motywu Windows/WebView2. */
+html body input[type="date"],
+html body.dark-theme input[type="date"],
+html body.system-theme input[type="date"],
+html body .dn-date-pair input[type="date"],
+html body .order-due-row input[type="date"],
+html body .branches-card-dates input[type="date"],
+html body #dnContentTitle .title-dates input[type="date"] {
+  color-scheme: light !important;
+  forced-color-adjust: none !important;
+}
+
+html body.dark-theme input[type="date"]::-webkit-calendar-picker-indicator,
+html body.system-theme input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2) contrast(1.2) !important;
+  opacity: 1 !important;
+}

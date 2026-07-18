@@ -26,7 +26,7 @@
     author: { id: "demo-worker", name: "Pracownik Demo", person: "Pracownik Demo", aliases: ["Pracownik Demo"], initials: "PD", color: "#8b5bb5" },
     recipient: null,
     projectId: "dk8",
-    createdAt: "2026-07-18T12:00:00.000Z"
+    createdAt: "2026-07-18T08:00:00.000Z"
   };
   const folderNames = ["01 WYJSCIOWE", "02 PISMA", "03 GEODEZJA", "04 GEOTECHNIKA", "05 POMOCNICZE", "06 DROGI"];
   const virtualFiles = {

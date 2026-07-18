@@ -5883,7 +5883,9 @@ async function refreshSecretExplorer() {
   if (!project) return;
   if (el.secretRefreshBtn) {
     el.secretRefreshBtn.disabled = true;
-    el.secretRefreshBtn.textContent = "Odswiezanie...";
+    el.secretRefreshBtn.textContent = "↻";
+    el.secretRefreshBtn.title = "Odświeżanie Eksploratora...";
+    el.secretRefreshBtn.setAttribute("aria-label", "Odświeżanie Eksploratora");
   }
   const selectedPath = secretExplorerState.selectedPath;
   const expandedPaths = [...secretExplorerState.expanded];
@@ -5912,7 +5914,9 @@ async function refreshSecretExplorer() {
   } finally {
     if (el.secretRefreshBtn) {
       el.secretRefreshBtn.disabled = false;
-      el.secretRefreshBtn.textContent = "Odswiez";
+      el.secretRefreshBtn.textContent = "↻";
+      el.secretRefreshBtn.title = "Odśwież Eksplorator";
+      el.secretRefreshBtn.setAttribute("aria-label", "Odśwież Eksplorator");
     }
   }
 }
