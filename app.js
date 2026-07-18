@@ -133,8 +133,11 @@ let demoTourStepIndex = 0;
 const PROGRAM_DEMO_STEPS = [
   { view: "dashboard", selector: "#topbarDashboardBtn", title: "Pulpit", text: "Tu zaczyna się praca. Pulpit zbiera Twoje zlecenia, terminy i najważniejsze informacje z projektów." },
   { view: "dashboard", selector: ".assignment-timeline, #dashboardView", title: "Oś zleceń", text: "Oś pokazuje obciążenie i terminy. Przykładowy projekt DW000 zawiera gotowe etapy, zadania i zlecenia, więc wszystkie widoki można od razu wypróbować." },
-  { view: "assignment", selector: "#assignmentCreatePanel", title: "Dodaj zadanie pracownikowi", text: "Wypełnij nazwę, opis, zadanie, termin i priorytet. Utworzone zlecenie możesz przypisać przykładowemu pracownikowi, przeciągając jego kafelek na odpowiedni wiersz osi." },
-  { view: "assignment", selector: "#assignmentTimeline", title: "Przypisanie do osoby", text: "Na osi widzisz przykładowego pracownika. Przeciągnij nowe zlecenie na jego wiersz, aby przypisać mu pracę i od razu ustawić termin." },
+  { view: "dashboard", selector: ".task-bundle-panel", title: "Zadania do wykonania", text: "Na środku Pulpitu znajdują się zlecenia do wykonania: na dziś, na jutro oraz w wybranym zakresie. Przykładowe zlecenia są już dodane, więc od razu widać sposób pracy." },
+  { view: "assignment-entry", selector: "#assignmentForm", title: "Wpisz nowe zlecenie", text: "Wpisujesz nazwę i krótki opis zlecenia. Demo wypełniło przykład: „Przygotuj pomiary geodezyjne”. Ustawiasz też termin i priorytet." },
+  { view: "assignment-entry", selector: "#assignmentSuggestion", title: "Automatyczny wybór zadania", text: "Program analizuje wpisaną nazwę i sam proponuje właściwy etap oraz zadanie projektu. Propozycję możesz zaakceptować albo ręcznie zmienić na inną." },
+  { view: "assignment-entry", selector: "#assignmentTimeline", title: "Przypisanie tylko jednej osobie", text: "Gotowy kafelek przeciągasz na wiersz wybranego pracownika. Zlecenie trafia tylko do tej osoby — tutaj do „Pracownik Demo” — i nie pojawia się u pozostałych." },
+  { view: "assignment-edit", selector: "#assignmentExistingPanel", title: "Edytuj istniejące zlecenie", text: "Po kliknięciu zlecenia na osi po prawej otwiera się edycja. Możesz zmienić nazwę, opis, priorytet, daty, przypisaną osobę, checklistę albo usunąć zlecenie." },
   { view: "secret", selector: "#topbarSecretBtn", title: "Eksplorator", text: "Eksplorator otwiera strukturę folderów projektu. Wbudowany DW000 ma bezpieczne pliki demonstracyjne, które użytkownik może później usunąć." },
   { view: "secret", selector: ".secret-tree-controls", title: "Foldery i widoki", text: "Przełączaj drzewko i kolumny, rozwijaj poziomy oraz ustawiaj wielkość tekstu." },
   { view: "secret", selector: "#secretFiles", title: "Pliki projektu", text: "Po prawej wyszukujesz, sortujesz i przypinasz pliki gwiazdką. Prawy przycisk udostępnia zmianę nazwy, kopiowanie, wklejanie i usuwanie." },
@@ -145,14 +148,15 @@ const PROGRAM_DEMO_STEPS = [
   { view: "letters", selector: "#lettersThreadPanel", title: "Wątki", text: "Wątki układają kolejne pisma poziomo i pozwalają szybko przejść przez całą historię sprawy." },
   { view: "technical", selector: "#technicalPage", title: "Warunki techniczne", text: "Ten moduł jest celowo otwarty na rozwój. Tutaj czekamy na pomysły użytkowników: napiszcie, jakie dane, przypomnienia i automatyzacje powinny się tu znaleźć." },
   { view: "branches", selector: "#branchesBoard", title: "Branże", text: "Tablica branżowa porządkuje uzgodnienia i kontakty w kolumnach, które można dopasować do sposobu pracy zespołu." },
-  { view: "chat-collapsed", selector: "#teamChatToggle", title: "Zwijany Komunikator", text: "Komunikator może pozostać jako mały, zwinięty pasek. Kliknięcie tego przycisku otwiera rozmowy bez opuszczania aktualnego modułu." },
-  { view: "chat", selector: ".team-chat-panel", title: "Rozmowy zespołu", text: "Tutaj prowadzisz rozmowy wspólne i prywatne. Komunikator można otwierać, zwijać i przenosić bez przerywania pracy." },
+  { view: "chat-notification", selector: "#topbarChatBtn", title: "Powiadomienie o wiadomości", text: "Ikona Komunikatora w górnym pasku pokazuje licznik nowych wiadomości. W przykładzie „Pracownik Demo” wysłał pytanie dotyczące projektu DW000 — kliknij ikonę, aby otworzyć rozmowę." },
+  { view: "chat", selector: ".team-chat-message", title: "Przykładowa wiadomość", text: "W rozmowie widzisz autora, godzinę i treść wiadomości. Pracownik Demo pyta, czy może rozpocząć pomiary geodezyjne." },
+  { view: "chat-reply", selector: "#teamChatForm", title: "Odpowiedz na wiadomość", text: "Wpisujesz odpowiedź i klikasz „Wyślij”. Demo przygotowało przykładową odpowiedź — możesz ją wysłać i zobaczyć w rozmowie." },
   { view: "chat", selector: "#teamChatMessages", title: "Wyślij plik przeciągnięciem", text: "Przeciągnij plik bezpośrednio na okno rozmowy. Program doda go do wiadomości, aby zespół mógł go zobaczyć i otworzyć." },
   { view: "chat", selector: "#teamBoardOpen", title: "Wspólna tablica", text: "Ten przycisk otwiera wspólną tablicę. Możecie rysować po pustej kartce albo po wysłanym obrazie i wspólnie nanosić uwagi." },
   { view: "chat-board", selector: "#sharedBoardCanvas", title: "Rysowanie i uwagi", text: "Na tablicy rysujesz odręcznie, wybierasz kolor i przesyłasz zespołowi gotowe uwagi. Zmiany są widoczne dla uczestników rozmowy." },
   { view: "chat", selector: "#teamChatPathBtn", title: "Link do pliku lub folderu", text: "Wklej ścieżkę w polu wiadomości i kliknij ostatni przycisk z ikoną łańcucha. Program zamieni ją w link z osobnym otwieraniem pliku oraz folderu, w którym plik się znajduje." },
   { view: "settings", selector: "#settingsPanel", title: "Ustawienia", text: "Na końcu są ustawienia użytkownika i programu: wygląd, ścieżki danych, projekty, pracownicy, branże oraz aktualizacje." },
-  { view: "dashboard", selector: "#topbarDemoBtn", title: "Gotowe", text: "To wszystkie główne panele ZK Managera. DW000 pozostaje w programie jako projekt do samodzielnego testowania i można go usunąć jak każdy inny projekt." }
+  { view: "dashboard", selector: "#topbarDemoBtn", final: true, title: "ZK PROJEKT", text: "Dziękujemy za obejrzenie ZK Managera. Zapraszamy do współpracy, testowania programu i dzielenia się pomysłami — wspólnie możemy rozwijać narzędzie dopasowane do rzeczywistej pracy projektowej." }
 ];
 const secretExplorerState = {
   projectId: null,
@@ -288,12 +292,12 @@ const projects = [
     folderUrl: "file:///C:/DEMO/DW000",
     selected: true,
     tasks: [
-      { title: "PRZYGOTOWANIE", assignee: "Przyklad", due: "2026-07-10", priority: "wysoki", stage: "01 WYJSCIOWE" },
-      { title: "POMIARY", assignee: "Przyklad", due: "2026-07-14", priority: "wysoki", stage: "01 WYJSCIOWE" },
+      { title: "PRZYGOTOWANIE", assignee: "Przyklad", due: "2026-07-10", priority: "wysoki", stage: "01 WYJSCIOWE", orders: [{ id: "demo-order-przygotowanie", title: "Sprawdź dane wejściowe", description: "Zweryfikuj kompletność materiałów od inwestora.", status: "Do zrobienia", assignee: "Pracownik Demo", start: "2026-07-18", due: "2026-07-18", hours: 0, priority: "wysoki", checklist: [] }] },
+      { title: "POMIARY", assignee: "Przyklad", due: "2026-07-14", priority: "wysoki", stage: "01 WYJSCIOWE", orders: [{ id: "demo-order-pomiary", title: "Przygotuj pomiary geodezyjne", description: "Przygotuj zakres pomiarów i przekaż do weryfikacji.", status: "Do zrobienia", assignee: "ZK Demo", start: "2026-07-18", due: "2026-07-19", hours: 0, priority: "sredni", checklist: [{ title: "Sprawdź zakres", done: false }, { title: "Przekaż materiały", done: false }] }] },
       { title: "MDCP", assignee: "Przyklad", due: "2026-07-18", priority: "sredni", stage: "01 WYJSCIOWE" },
       { title: "EGIB", assignee: "Przyklad", due: "2026-07-21", priority: "sredni", stage: "01 WYJSCIOWE" },
       { title: "GEOLOGIA", assignee: "Przyklad", due: "2026-07-24", priority: "niski", stage: "01 WYJSCIOWE" },
-      { title: "KIP", assignee: "Przyklad", due: "2026-07-29", priority: "sredni", stage: "02 DSU" },
+      { title: "KIP", assignee: "Przyklad", due: "2026-07-29", priority: "sredni", stage: "02 DSU", orders: [{ id: "demo-order-kip", title: "Uzupełnij opis KIP", description: "Dodaj dane dotyczące oddziaływania inwestycji.", status: "Do zrobienia", assignee: "Pracownik Demo", start: "2026-07-19", due: "2026-07-22", hours: 0, priority: "niski", checklist: [] }] },
       { title: "ROOS", assignee: "Przyklad", due: "2026-08-02", priority: "sredni", stage: "02 DSU" },
       { title: "POSTEPOWANIE", assignee: "Przyklad", due: "2026-08-08", priority: "wysoki", stage: "02 DSU" },
       { title: "OWP", assignee: "Przyklad", due: "2026-08-12", priority: "sredni", stage: "03 PWP" },
@@ -346,6 +350,7 @@ const el = {
   demoTourProgress: document.querySelector("#demoTourProgress"),
   demoTourTitle: document.querySelector("#demoTourTitle"),
   demoTourText: document.querySelector("#demoTourText"),
+  demoTourLogo: document.querySelector("#demoTourLogo"),
   demoTourClose: document.querySelector("#demoTourClose"),
   demoTourPrev: document.querySelector("#demoTourPrev"),
   demoTourNext: document.querySelector("#demoTourNext"),
@@ -5720,23 +5725,38 @@ function changeDemoTourStep(delta) {
 function activateDemoView(view) {
   const project = projects.find((item) => item.id === activeProjectId) || selectedProject() || projects[0];
   if (view === "dashboard") showHomeDashboard();
-  else if (view === "assignment") {
+  else if (view === "assignment" || view === "assignment-entry" || view === "assignment-edit") {
     showHomeDashboard();
     planningProjectId = project?.id || planningProjectId;
     renderAssignmentMode();
+    if (view === "assignment-entry") {
+      el.assignmentTitle.value = "Przygotuj pomiary geodezyjne";
+      el.assignmentDescription.value = "Przygotuj zakres pomiarów i przekaż do weryfikacji.";
+      assignmentTaskManuallySelected = false;
+      suggestAssignmentTask();
+      renderAssignmentDraft();
+    } else if (view === "assignment-edit") {
+      selectedAssignmentKey = `${project?.id || "dk8"}:0:0`;
+      renderAssignmentMode();
+    }
   }
   else if (view === "secret") openSecretModule(project?.id);
   else if (view === "full" && project) { sidebarModuleMode = "full"; openProject(project); }
   else if (view === "letters") openLettersModule(project?.id);
   else if (view === "technical") openTechnicalModule(project?.id, "technical");
   else if (view === "branches") openTechnicalModule(project?.id, "branches");
-  else if (view === "chat-collapsed") {
+  else if (view === "chat-notification") {
     if (sharedBoardOpen) closeSharedBoard();
     setChatOpen(false);
+    updateChatUnreadBadge(1, true);
   } else if (view === "chat") {
     if (sharedBoardOpen) closeSharedBoard();
     el.settingsPanel?.classList.add("hidden");
     if (!chatOpen) setChatOpen(true);
+  } else if (view === "chat-reply") {
+    if (!chatOpen) setChatOpen(true);
+    el.teamChatInput.value = "Tak, rozpocznij pomiary. Po zakończeniu dodaj materiały do DW000.";
+    el.teamChatInput.focus();
   } else if (view === "chat-board") {
     if (!chatOpen) setChatOpen(true);
     void openSharedBoard();
@@ -5760,6 +5780,8 @@ function showDemoTourStep(candidateIndex, direction = 1) {
   if (el.demoTourProgress) el.demoTourProgress.textContent = `DEMO PROGRAMU · ${index + 1}/${PROGRAM_DEMO_STEPS.length}`;
   if (el.demoTourTitle) el.demoTourTitle.textContent = step.title;
   if (el.demoTourText) el.demoTourText.textContent = step.text;
+  el.demoTourCard?.classList.toggle("is-final", Boolean(step.final));
+  el.demoTourLogo?.classList.toggle("hidden", !step.final);
   if (el.demoTourPrev) el.demoTourPrev.disabled = index === 0;
   if (el.demoTourNext) el.demoTourNext.textContent = index === PROGRAM_DEMO_STEPS.length - 1 ? "Zakończ" : "Dalej";
   window.setTimeout(() => {

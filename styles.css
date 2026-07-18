@@ -214,6 +214,23 @@ button {
 .demo-tour-card p { min-height: 54px; margin: 0 0 14px; color: #c8d9df; font-size: .8rem; line-height: 1.45; }
 .demo-tour-card footer { display: grid; grid-template-columns: auto 1fr auto auto; gap: 7px; }
 .demo-tour-card button { min-height: 30px; padding: 0 10px; }
+.demo-tour-logo { display: none; }
+.demo-tour-card.is-final {
+  width: min(430px, calc(100vw - 24px)) !important;
+  text-align: center;
+  border-color: #7295bd;
+  box-shadow: 0 20px 70px rgba(0, 25, 62, .62);
+}
+.demo-tour-card.is-final .demo-tour-logo {
+  display: block;
+  width: 86px;
+  height: auto;
+  margin: 0 auto 12px;
+  border-radius: 4px;
+}
+.demo-tour-card.is-final small { color: #89b7e7; }
+.demo-tour-card.is-final h2 { font-size: 1.45rem; letter-spacing: .08em; color: #f5fbff; }
+.demo-tour-card.is-final p { font-size: .9rem; }
 
 .app-zoom-control {
   height: 30px;
@@ -16583,4 +16600,17 @@ body.sidebar-collapsed .app-sidebar.projects-panel > header > .project-header-co
   background: #dff8ff;
   font-weight: 800;
   cursor: pointer;
+}
+.online-demo-version {
+  position: fixed;
+  right: 12px;
+  bottom: 8px;
+  z-index: 9999;
+  padding: 3px 7px;
+  border: 1px solid #4f7f8d;
+  border-radius: 5px;
+  color: #9ed8e6;
+  background: rgba(10, 30, 38, .88);
+  font: 800 10px/1 "Segoe UI", sans-serif;
+  pointer-events: none;
 }
