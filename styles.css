@@ -16535,27 +16535,52 @@ body.sidebar-collapsed .app-sidebar.projects-panel > header > .project-header-co
   justify-self: start !important;
 }
 /* GitHub Pages demo */
-.online-demo-bar {
-  position: sticky;
-  top: 0;
+.online-demo-welcome {
+  position: fixed;
+  inset: 0;
   z-index: 100000;
-  min-height: 34px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 5px 14px;
-  color: #effbff;
-  background: linear-gradient(90deg, #087c9a, #12556a);
-  border-bottom: 1px solid #72cbe1;
-  font: 700 12px/1.2 "Segoe UI", sans-serif;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(3, 13, 18, .76);
+  backdrop-filter: blur(4px);
 }
-.online-demo-bar span { flex: 1; font-weight: 500; }
-.online-demo-bar button {
-  border: 1px solid #bfe9f4;
-  border-radius: 6px;
-  padding: 4px 10px;
-  color: #08232c;
-  background: #eefbff;
+.online-demo-welcome-card {
+  position: relative;
+  width: min(520px, calc(100vw - 48px));
+  padding: 30px;
+  color: #eaf8fc;
+  background: #12242c;
+  border: 1px solid #4c7c8c;
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+  font-family: "Segoe UI", sans-serif;
+}
+.online-demo-welcome-card small { color: #70d4ed; font-weight: 900; letter-spacing: .16em; }
+.online-demo-welcome-card h1 { margin: 8px 0 16px; font-size: 27px; }
+.online-demo-welcome-card p { margin: 10px 0; color: #c5d9e0; line-height: 1.55; }
+.online-demo-welcome-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #547482;
+  border-radius: 7px;
+  color: #effbff;
+  background: #1a3039;
+  font-size: 23px;
+  cursor: pointer;
+}
+.online-demo-welcome-start {
+  width: 100%;
+  margin-top: 18px;
+  border: 1px solid #86d9eb;
+  border-radius: 8px;
+  padding: 11px 16px;
+  color: #06232c;
+  background: #dff8ff;
   font-weight: 800;
   cursor: pointer;
 }

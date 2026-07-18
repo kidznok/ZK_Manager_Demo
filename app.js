@@ -133,6 +133,8 @@ let demoTourStepIndex = 0;
 const PROGRAM_DEMO_STEPS = [
   { view: "dashboard", selector: "#topbarDashboardBtn", title: "Pulpit", text: "Tu zaczyna się praca. Pulpit zbiera Twoje zlecenia, terminy i najważniejsze informacje z projektów." },
   { view: "dashboard", selector: ".assignment-timeline, #dashboardView", title: "Oś zleceń", text: "Oś pokazuje obciążenie i terminy. Przykładowy projekt DW000 zawiera gotowe etapy, zadania i zlecenia, więc wszystkie widoki można od razu wypróbować." },
+  { view: "assignment", selector: "#assignmentCreatePanel", title: "Dodaj zadanie pracownikowi", text: "Wypełnij nazwę, opis, zadanie, termin i priorytet. Utworzone zlecenie możesz przypisać przykładowemu pracownikowi, przeciągając jego kafelek na odpowiedni wiersz osi." },
+  { view: "assignment", selector: "#assignmentTimeline", title: "Przypisanie do osoby", text: "Na osi widzisz przykładowego pracownika. Przeciągnij nowe zlecenie na jego wiersz, aby przypisać mu pracę i od razu ustawić termin." },
   { view: "secret", selector: "#topbarSecretBtn", title: "Eksplorator", text: "Eksplorator otwiera strukturę folderów projektu. Wbudowany DW000 ma bezpieczne pliki demonstracyjne, które użytkownik może później usunąć." },
   { view: "secret", selector: ".secret-tree-controls", title: "Foldery i widoki", text: "Przełączaj drzewko i kolumny, rozwijaj poziomy oraz ustawiaj wielkość tekstu." },
   { view: "secret", selector: "#secretFiles", title: "Pliki projektu", text: "Po prawej wyszukujesz, sortujesz i przypinasz pliki gwiazdką. Prawy przycisk udostępnia zmianę nazwy, kopiowanie, wklejanie i usuwanie." },
@@ -143,7 +145,12 @@ const PROGRAM_DEMO_STEPS = [
   { view: "letters", selector: "#lettersThreadPanel", title: "Wątki", text: "Wątki układają kolejne pisma poziomo i pozwalają szybko przejść przez całą historię sprawy." },
   { view: "technical", selector: "#technicalPage", title: "Warunki techniczne", text: "Ten moduł jest celowo otwarty na rozwój. Tutaj czekamy na pomysły użytkowników: napiszcie, jakie dane, przypomnienia i automatyzacje powinny się tu znaleźć." },
   { view: "branches", selector: "#branchesBoard", title: "Branże", text: "Tablica branżowa porządkuje uzgodnienia i kontakty w kolumnach, które można dopasować do sposobu pracy zespołu." },
-  { view: "chat", selector: ".team-chat-panel", title: "Komunikator", text: "Komunikator służy do rozmów zespołu, przesyłania ścieżek jako linków oraz otwierania pliku albo folderu docelowego." },
+  { view: "chat-collapsed", selector: "#teamChatToggle", title: "Zwijany Komunikator", text: "Komunikator może pozostać jako mały, zwinięty pasek. Kliknięcie tego przycisku otwiera rozmowy bez opuszczania aktualnego modułu." },
+  { view: "chat", selector: ".team-chat-panel", title: "Rozmowy zespołu", text: "Tutaj prowadzisz rozmowy wspólne i prywatne. Komunikator można otwierać, zwijać i przenosić bez przerywania pracy." },
+  { view: "chat", selector: "#teamChatMessages", title: "Wyślij plik przeciągnięciem", text: "Przeciągnij plik bezpośrednio na okno rozmowy. Program doda go do wiadomości, aby zespół mógł go zobaczyć i otworzyć." },
+  { view: "chat", selector: "#teamBoardOpen", title: "Wspólna tablica", text: "Ten przycisk otwiera wspólną tablicę. Możecie rysować po pustej kartce albo po wysłanym obrazie i wspólnie nanosić uwagi." },
+  { view: "chat-board", selector: "#sharedBoardCanvas", title: "Rysowanie i uwagi", text: "Na tablicy rysujesz odręcznie, wybierasz kolor i przesyłasz zespołowi gotowe uwagi. Zmiany są widoczne dla uczestników rozmowy." },
+  { view: "chat", selector: "#teamChatPathBtn", title: "Link do pliku lub folderu", text: "Wklej ścieżkę w polu wiadomości i kliknij ostatni przycisk z ikoną łańcucha. Program zamieni ją w link z osobnym otwieraniem pliku oraz folderu, w którym plik się znajduje." },
   { view: "settings", selector: "#settingsPanel", title: "Ustawienia", text: "Na końcu są ustawienia użytkownika i programu: wygląd, ścieżki danych, projekty, pracownicy, branże oraz aktualizacje." },
   { view: "dashboard", selector: "#topbarDemoBtn", title: "Gotowe", text: "To wszystkie główne panele ZK Managera. DW000 pozostaje w programie jako projekt do samodzielnego testowania i można go usunąć jak każdy inny projekt." }
 ];
@@ -225,7 +232,14 @@ const DEFAULT_LEAVE_DAYS = 26;
 let appZoom = 1;
 let zoomIndicatorTimer = null;
 let draggedKanbanOrderIndex = null;
-let letterLinks = {};
+let letterLinks = {
+  dk8: [{
+    id: "thread-demo-warunki-techniczne",
+    name: "Warunki techniczne - gestor sieci",
+    outgoing: ["demo-out-1"],
+    incoming: ["demo-in-1"]
+  }]
+};
 let activeLettersProjectId = null;
 let activeLettersData = { incoming: [], outgoing: [], root: "" };
 const lettersDataCache = new Map();
@@ -5706,15 +5720,29 @@ function changeDemoTourStep(delta) {
 function activateDemoView(view) {
   const project = projects.find((item) => item.id === activeProjectId) || selectedProject() || projects[0];
   if (view === "dashboard") showHomeDashboard();
+  else if (view === "assignment") {
+    showHomeDashboard();
+    planningProjectId = project?.id || planningProjectId;
+    renderAssignmentMode();
+  }
   else if (view === "secret") openSecretModule(project?.id);
   else if (view === "full" && project) { sidebarModuleMode = "full"; openProject(project); }
   else if (view === "letters") openLettersModule(project?.id);
   else if (view === "technical") openTechnicalModule(project?.id, "technical");
   else if (view === "branches") openTechnicalModule(project?.id, "branches");
-  else if (view === "chat") {
+  else if (view === "chat-collapsed") {
+    if (sharedBoardOpen) closeSharedBoard();
+    setChatOpen(false);
+  } else if (view === "chat") {
+    if (sharedBoardOpen) closeSharedBoard();
     el.settingsPanel?.classList.add("hidden");
     if (!chatOpen) setChatOpen(true);
+  } else if (view === "chat-board") {
+    if (!chatOpen) setChatOpen(true);
+    void openSharedBoard();
   } else if (view === "settings") {
+    if (sharedBoardOpen) closeSharedBoard();
+    setChatOpen(false);
     el.settingsPanel?.classList.remove("hidden");
   }
 }

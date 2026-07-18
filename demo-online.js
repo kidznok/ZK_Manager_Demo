@@ -3,7 +3,14 @@
 
   const STATE_KEY = "zk-manager-online-demo-state";
   const USER_KEY = "zk-manager-online-demo-user";
+  const WELCOME_KEY = "zk-manager-online-demo-welcome-seen";
   const ROOT = "C:\\DEMO\\DW000";
+  const demoThread = {
+    id: "thread-demo-warunki-techniczne",
+    name: "Warunki techniczne - gestor sieci",
+    outgoing: ["demo-out-1"],
+    incoming: ["demo-in-1"]
+  };
   const now = "2026-07-18T10:00:00.000Z";
   const folderNames = ["01 WYJSCIOWE", "02 PISMA", "03 GEODEZJA", "04 GEOTECHNIKA", "05 POMOCNICZE", "06 DROGI"];
   const virtualFiles = {
@@ -55,7 +62,17 @@
         return json({ ok: true, revision: Date.now() });
       }
       const saved = localStorage.getItem(STATE_KEY);
-      return json(saved ? JSON.parse(saved) : {});
+      const state = saved ? JSON.parse(saved) : {};
+      state.letterLinks = state.letterLinks && typeof state.letterLinks === "object" ? state.letterLinks : {};
+      const threads = Array.isArray(state.letterLinks.dk8) ? state.letterLinks.dk8 : [];
+      if (!threads.some((thread) => thread?.id === demoThread.id)) threads.unshift(demoThread);
+      state.letterLinks.dk8 = threads;
+      state.assignmentPeople = Array.from(new Set([...(Array.isArray(state.assignmentPeople) ? state.assignmentPeople : []), "Pracownik Demo", "ZK Demo"]));
+      state.employeeDirectory = Array.isArray(state.employeeDirectory) ? state.employeeDirectory : [];
+      if (!state.employeeDirectory.some((person) => person?.name === "Pracownik Demo")) {
+        state.employeeDirectory.push({ name: "Pracownik Demo", displayName: "Pracownik Demo", assigneeName: "Pracownik Demo", initials: "PD", color: "#8b5bb5", role: "pracownik" });
+      }
+      return json(state);
     }
     if (url.pathname === "/api/user-state") {
       if (method === "POST") {
@@ -63,9 +80,12 @@
         return json({ ok: true, revision: Date.now() });
       }
       const saved = localStorage.getItem(USER_KEY);
-      return json(saved ? JSON.parse(saved) : {});
+      const userState = saved ? JSON.parse(saved) : {};
+      userState.settings = userState.settings && typeof userState.settings === "object" ? userState.settings : {};
+      userState.settings.userInitials = "ZK";
+      return json(userState);
     }
-    if (url.pathname === "/api/me") return json({ displayName: "Uzytkownik Demo", assigneeName: "Przyklad", initials: "DE", color: "#287b91" });
+    if (url.pathname === "/api/me") return json({ displayName: "ZK Demo", assigneeName: "ZK Demo", initials: "ZK", color: "#287b91" });
     if (url.pathname === "/api/config") return json({ dataPath: "Pamięć przeglądarki (DEMO)", updateManifestUrl: "" });
     if (url.pathname === "/api/demo-project") return json({ folderUrl: "file:///C:/DEMO/DW000" });
     if (url.pathname === "/api/list-folder") {
@@ -89,14 +109,28 @@
 
   window.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add("online-demo-mode");
-    const bar = document.createElement("div");
-    bar.className = "online-demo-bar";
-    bar.innerHTML = `<strong>DEMO ONLINE</strong><span>Dane są przykładowe i zapisują się tylko w tej przeglądarce.</span><button type="button">Przywróć demo</button>`;
-    bar.querySelector("button").addEventListener("click", () => {
-      localStorage.removeItem(STATE_KEY);
-      localStorage.removeItem(USER_KEY);
-      location.reload();
-    });
-    document.body.prepend(bar);
+    if (localStorage.getItem(WELCOME_KEY) === "1") return;
+    const welcome = document.createElement("div");
+    welcome.className = "online-demo-welcome";
+    welcome.setAttribute("role", "dialog");
+    welcome.setAttribute("aria-modal", "true");
+    welcome.setAttribute("aria-labelledby", "onlineDemoWelcomeTitle");
+    welcome.innerHTML = `
+      <section class="online-demo-welcome-card">
+        <button class="online-demo-welcome-close" type="button" aria-label="Zamknij">×</button>
+        <small>DEMO ONLINE</small>
+        <h1 id="onlineDemoWelcomeTitle">Witaj w ZK Managerze</h1>
+        <p>To jest wersja demonstracyjna z przykładowym projektem DW000, harmonogramem, folderami i pismami.</p>
+        <p>Możesz swobodnie klikać i zmieniać dane. Wszystkie zmiany zapisują się wyłącznie w tej przeglądarce i nie mają dostępu do plików Twojego komputera.</p>
+        <button class="online-demo-welcome-start" type="button">Rozpocznij testowanie</button>
+      </section>`;
+    const closeWelcome = () => {
+      localStorage.setItem(WELCOME_KEY, "1");
+      welcome.remove();
+    };
+    welcome.querySelector(".online-demo-welcome-close").addEventListener("click", closeWelcome);
+    welcome.querySelector(".online-demo-welcome-start").addEventListener("click", closeWelcome);
+    welcome.addEventListener("click", (event) => { if (event.target === welcome) closeWelcome(); });
+    document.body.append(welcome);
   });
 })();
