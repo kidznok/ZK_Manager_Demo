@@ -1,0 +1,747 @@
+﻿<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ZK Manager</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="zoom-indicator hidden" id="zoomIndicator">100%</div>
+    <header class="app-topbar">
+      <div class="app-topbar-title">
+        <strong>ZK Manager</strong>
+        <nav id="appTopbarContext" aria-label="Aktualna sciezka">Pulpit</nav>
+      </div>
+      <div class="app-topbar-actions">
+        <button id="sidebarBackBtn" class="app-topbar-icon topbar-history-button" type="button" title="Cofnij widok" aria-label="Cofnij widok">&larr;</button>
+        <button id="sidebarForwardBtn" class="app-topbar-icon topbar-history-button" type="button" title="Dalej widok" aria-label="Dalej widok">&rarr;</button>
+        <div class="app-zoom-control" aria-label="Skala interfejsu">
+          <button id="appZoomOutBtn" type="button" title="Pomniejsz interfejs" aria-label="Pomniejsz interfejs">-</button>
+          <button id="appZoomValueBtn" type="button" title="Przywroc 100%" aria-label="Przywroc 100%">100%</button>
+          <button id="appZoomInBtn" type="button" title="Powieksz interfejs" aria-label="Powieksz interfejs">+</button>
+        </div>
+        <button class="app-topbar-icon update-notice-button hidden" id="updateNoticeBtn" type="button" title="Dostepna aktualizacja" aria-label="Dostepna aktualizacja">
+          <span aria-hidden="true">⟳</span>
+          <strong id="updateNoticeBadge" class="notification-badge hidden">1</strong>
+        </button>
+        <button class="app-topbar-icon topbar-chat-button" id="topbarChatBtn" type="button" title="Komunikator" aria-label="Komunikator">
+          <span aria-hidden="true"></span>
+          <strong id="topbarChatUnread" class="notification-badge hidden">0</strong>
+        </button>
+        <a class="app-topbar-icon topbar-feedback-button" href="mailto:kidznok@gmail.com?subject=ZK%20Manager%20-%20feedback" title="Wyślij uwagi do programu" aria-label="Wyślij uwagi do programu">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 10.5v3h3.2l1.2 4.2c.2.6.7 1 1.3 1h1.1c.7 0 1.2-.7 1-1.4l-1.1-3.8h1.7l6.1 3.1c.7.3 1.5-.2 1.5-.9V8.3c0-.7-.8-1.2-1.5-.9l-6.1 3.1H4Zm2 1.2h6.7l5.3-2.6v5.8l-5.3-2.6H6v-.6Z" />
+          </svg>
+        </a>
+        <button class="app-topbar-icon" id="settingsBtn" type="button" title="Ustawienia" aria-label="Ustawienia">⚙</button>
+        <button class="app-topbar-icon" id="topbarHelpBtn" type="button" title="Pomoc" aria-label="Pomoc">?</button>
+        <button class="app-demo-button" id="topbarDemoBtn" type="button" title="Interaktywne demo programu">DEMO</button>
+        <button class="current-user-badge global-user-badge" id="currentUserBadge" type="button" title="Ustawienia uzytkownika">
+          <span class="person-avatar">?</span>
+          <strong>Lokalnie</strong>
+        </button>
+      </div>
+    </header>
+
+    <nav class="project-module-tabs project-module-strip" id="projectModuleTabs" aria-label="Moduly projektu">
+      <button id="topbarDashboardBtn" type="button" data-project-module="dashboard">Pulpit</button>
+      <button id="topbarSecretBtn" type="button" data-project-module="secret" title="Eksplorator">Eksplorator</button>
+      <button id="topbarFullBtn" type="button" data-project-module="full">Widok ogolny</button>
+      <button id="topbarLettersBtn" type="button" data-project-module="letters">Pisma</button>
+      <button id="topbarTechnicalBtn" type="button" data-project-module="technical">Warunki techniczne</button>
+      <button id="topbarBranchesBtn" type="button" data-project-module="branches">Branze</button>
+    </nav>
+
+    <aside class="projects-panel app-sidebar" id="projectsSidebar">
+      <header>
+        <div class="project-title-row">
+          <h1>PROJEKTY</h1>
+          <div class="project-actions">
+            <button id="addProjectBtn" type="button" title="Dodaj projekt" aria-label="Dodaj projekt">+</button>
+            <button id="deleteProjectBtn" type="button" title="Usun projekt" aria-label="Usun projekt">-</button>
+          </div>
+        </div>
+        <div class="sidebar-nav project-header-controls" aria-label="Nawigacja projektow">
+          <button id="sidebarCollapseBtn" class="sidebar-collapse-icon" type="button" title="Zwin panel" aria-label="Zwin panel"></button>
+        </div>
+      </header>
+      <div id="projectList" class="project-list"></div>
+    </aside>
+
+    <div class="shell" id="dashboardView">
+      <main class="today-panel">
+        <section class="hero">
+          <div>
+            <p>Pulpit</p>
+            <h2>Zarządzaj pracą</h2>
+          </div>
+          <div class="dashboard-tools">
+            <div class="mode-switch" aria-label="Tryb pulpitu">
+              <button id="dashboardOpsModeBtn" type="button" class="active">MOJE ZLECENIA</button>
+            </div>
+            <select id="personFilter" aria-label="Filtr osoby">
+              <option value="all">Wszyscy</option>
+            </select>
+            <button id="dashboardCompactBtn" type="button">Zwin</button>
+            <div class="date-pill" id="todayLabel"></div>
+          </div>
+        </section>
+
+        <section class="task-bundle-panel" aria-labelledby="personalTasksTitle">
+          <header class="task-bundle-header today-letter-header">
+            <div class="today-letter-heading">
+              <h3 id="personalTasksTitle">Twoje zlecenia</h3>
+            </div>
+          </header>
+
+          <div class="task-bundle-body">
+            <section class="task-section">
+              <header>
+                <div class="today-letter-heading task-subheading">
+                  <h3>Na dziś</h3>
+                  <time id="todayHeaderDate"></time>
+                </div>
+                <span id="todayCount">0</span>
+              </header>
+              <div id="todayTasks" class="task-list"></div>
+            </section>
+
+            <section class="task-section">
+              <header>
+                <div class="today-letter-heading task-subheading">
+                  <h3>Na jutro</h3>
+                  <time id="tomorrowHeaderDate"></time>
+                </div>
+                <span id="weekCount">0</span>
+              </header>
+              <div id="weekTasks" class="task-list"></div>
+            </section>
+
+            <section class="task-section deadlines">
+              <header>
+                <div class="range-heading">
+                  <h3>Zlecenia</h3>
+                  <select id="dashboardRangeFilter" aria-label="Zakres zlecen">
+                    <option value="week">W tym tygodniu</option>
+                    <option value="two-weeks">W dwa tygodnie</option>
+                    <option value="month">W tym miesiącu</option>
+                    <option value="all">Wszystkie</option>
+                  </select>
+                </div>
+                <span id="stageCount">0</span>
+              </header>
+              <div id="endingStages" class="task-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="assignment-mode hidden" id="assignmentMode">
+          <section class="assignment-gantt-card">
+            <header class="assignment-personal-header today-letter-header">
+              <div class="today-letter-heading">
+                <h3>Oś Twoich zleceń</h3>
+              </div>
+            </header>
+            <section class="assignment-gantt-panel">
+              <header>
+              <div>
+                <p></p>
+                <h3>OŚ ZLECEŃ</h3>
+              </div>
+              <span id="assignmentCount">0</span>
+              </header>
+              <div id="assignmentTimeline" class="assignment-timeline"></div>
+            </section>
+          </section>
+
+          <section class="assignment-work-panels">
+          <section class="assignment-create-panel" id="assignmentCreatePanel">
+            <header>
+              <div>
+                <p>Nowe zlecenie</p>
+                <h3>DODAJ ZLECENIE</h3>
+              </div>
+              <span id="assignmentProjectLabel">Brak projektu</span>
+            </header>
+            <form id="assignmentForm" class="assignment-form">
+              <label>
+                <span class="visually-hidden">Nazwa zlecenia</span>
+                <input id="assignmentTitle" type="text" placeholder="np. poprawić opis osi" />
+              </label>
+              <label class="assignment-description-field">
+                <span class="visually-hidden">Opis</span>
+                <textarea id="assignmentDescription" rows="2" placeholder="Krotki opis zlecenia..."></textarea>
+              </label>
+              <label class="assignment-task-picker">
+                <span>Zadanie</span>
+                <select id="assignmentTask"></select>
+              </label>
+              <label class="assignment-date-field start">
+                <span>Od</span>
+                <input id="assignmentStart" type="date" autocomplete="off" />
+              </label>
+              <label class="assignment-date-field due">
+                <span>Do</span>
+                <input id="assignmentDue" type="date" autocomplete="off" />
+              </label>
+              <label class="assignment-priority-picker">
+                <span>Priorytet</span>
+                <select id="assignmentPriority">
+                  <option value="niski">Niski</option>
+                  <option value="sredni" selected>Średni</option>
+                  <option value="wysoki">Wysoki</option>
+                </select>
+              </label>
+              <div class="quick-dates">
+                <span class="quick-date-control priority-wysoki" data-quick-priority="wysoki">
+                  <button type="button" data-quick-due="1">Jutro</button>
+                  <select class="quick-priority-select" aria-label="Priorytet dla Jutro">
+                    <option value="wysoki" selected>Wysoki</option>
+                    <option value="sredni">Średni</option>
+                    <option value="niski">Niski</option>
+                  </select>
+                </span>
+                <span class="quick-date-control priority-wysoki" data-quick-priority="wysoki">
+                  <button type="button" data-quick-due="2">Pojutrze</button>
+                  <select class="quick-priority-select" aria-label="Priorytet dla Pojutrze">
+                    <option value="wysoki" selected>Wysoki</option>
+                    <option value="sredni">Średni</option>
+                    <option value="niski">Niski</option>
+                  </select>
+                </span>
+                <span class="quick-date-control priority-sredni" data-quick-priority="sredni">
+                  <button type="button" data-quick-due="7">Za tydzień</button>
+                  <select class="quick-priority-select" aria-label="Priorytet dla Za tydzień">
+                    <option value="wysoki">Wysoki</option>
+                    <option value="sredni" selected>Średni</option>
+                    <option value="niski">Niski</option>
+                  </select>
+                </span>
+                <span class="quick-date-control priority-sredni" data-quick-priority="sredni">
+                  <button type="button" data-quick-due="14">Za dwa tygodnie</button>
+                  <select class="quick-priority-select" aria-label="Priorytet dla Za dwa tygodnie">
+                    <option value="wysoki">Wysoki</option>
+                    <option value="sredni" selected>Średni</option>
+                    <option value="niski">Niski</option>
+                  </select>
+                </span>
+                <span class="quick-date-control priority-niski" data-quick-priority="niski">
+                  <button type="button" data-quick-due="30">Za miesiąc</button>
+                  <select class="quick-priority-select" aria-label="Priorytet dla Za miesiąc">
+                    <option value="wysoki">Wysoki</option>
+                    <option value="sredni">Średni</option>
+                    <option value="niski" selected>Niski</option>
+                  </select>
+                </span>
+              </div>
+              <button class="assignment-submit" type="submit">Dodaj bez przypisania</button>
+            </form>
+            <div class="assignment-suggestion" id="assignmentSuggestion"></div>
+            <button class="assignment-draft-card" id="assignmentPool" type="button">
+              <strong>Nowe zlecenie</strong>
+            </button>
+          </section>
+          <section class="assignment-existing-panel">
+            <header>
+              <div>
+                <p>Istniejace zlecenie</p>
+                <h3>EDYTUJ ZLECENIE</h3>
+              </div>
+            </header>
+            <div id="assignmentExistingPanel" class="assignment-existing-content">
+              <div class="empty">Kliknij zlecenie na osi, zeby zobaczyc dane.</div>
+            </div>
+          </section>
+          </section>
+        </section>
+      </main>
+
+    </div>
+
+    <div class="project-page hidden" id="projectPage">
+      <header class="project-page-header">
+        <button class="back-button" id="backBtn" type="button">&larr; Pulpit</button>
+        <div class="project-title-line">
+          <h1 id="detailTitle"></h1>
+          <nav class="breadcrumb" id="detailBreadcrumb" aria-label="Sciezka">Pulpit</nav>
+        </div>
+        <button class="letters-open-btn" id="lettersOpenBtn" type="button">Pisma</button>
+        <div class="detail-progress">
+          <span id="detailProgress">0%</span>
+          <div class="progress-track"><div class="progress-bar" id="detailProgressBar"></div></div>
+        </div>
+      </header>
+
+      <section class="dn-project-view hidden" id="dnProjectView">
+        <section class="dn-gantt-panel">
+          <div class="dn-gantt-actions">
+            <button class="dn-icon-button dn-level-button" id="dnLevelStagesBtn" type="button" title="1 - tylko etapy" aria-label="1 - tylko etapy">1</button>
+            <button class="dn-icon-button dn-level-button" id="dnLevelTasksBtn" type="button" title="2 - etapy i zadania" aria-label="2 - etapy i zadania">2</button>
+            <button class="dn-icon-button dn-level-button" id="dnLevelOrdersBtn" type="button" title="3 - etapy, zadania i zlecenia" aria-label="3 - etapy, zadania i zlecenia">3</button>
+            <button class="dn-icon-button" id="dnZoomOutBtn" type="button" title="Pomniejsz" aria-label="Pomniejsz">-</button>
+            <button class="dn-icon-button" id="dnZoomInBtn" type="button" title="Powieksz" aria-label="Powieksz">+</button>
+            <button class="dn-icon-button" id="dnMaximizeBtn" type="button" title="Pelny zakres" aria-label="Pelny zakres">[]</button>
+            <button class="dn-icon-button" id="dnFullscreenBtn" type="button" title="Gantt na cale okno" aria-label="Gantt na cale okno">⛶</button>
+            <label class="dn-forecast-toggle" title="Pokaz daty przewidywane">
+              <input id="dnForecastToggle" type="checkbox" />
+              <span>plan</span>
+            </label>
+          </div>
+          <div class="project-gantt-shell">
+            <div class="project-gantt-rail" id="dnGanttRail"></div>
+            <div class="project-gantt-scale-host" id="dnGanttScaleHost"></div>
+            <div class="project-gantt-axis-wrap">
+              <div class="dn-gantt-viewport" id="dnGanttViewport">
+                <div id="dnGantt" class="dn-gantt"></div>
+              </div>
+            </div>
+            <div class="project-gantt-scroll-gutter" aria-hidden="true"></div>
+            <div class="dn-bottom-scroll" id="dnBottomScroll" aria-label="Przewijanie Gantta w poziomie">
+              <div id="dnBottomScrollInner"></div>
+            </div>
+          </div>
+        </section>
+
+        <button class="dn-content-splitter" id="dnContentSplitter" type="button" aria-label="Zmien wysokosc Gantta"></button>
+
+        <section class="dn-content-panel">
+          <header>
+            <div>
+              <p id="dnContentType">Podglad</p>
+              <h2 id="dnContentTitle">Wybierz etap albo zadanie</h2>
+            </div>
+            <span id="dnContentProgress" class="content-progress hidden">0%</span>
+          </header>
+          <div id="dnContentBody" class="dn-content-body"></div>
+        </section>
+      </section>
+
+      <div class="project-layout" id="projectLayout">
+        <main class="project-main">
+          <section class="task-section" id="detailStagesSection">
+            <header>
+              <h2>Etapy projektu</h2>
+              <span id="detailStageCount">0</span>
+            </header>
+            <div id="detailStages" class="detail-list"></div>
+          </section>
+
+          <section class="task-section" id="detailTasksSection">
+            <header>
+              <h2>Zadania projektu</h2>
+              <span id="detailTaskCount">0</span>
+            </header>
+            <div id="detailTasks" class="detail-list"></div>
+          </section>
+
+          <section class="task-section stage-board-section hidden" id="stageBoardSection">
+            <header>
+              <div>
+                <p>OWB4</p>
+                <h2>Etapy i zadania w kolumnach</h2>
+              </div>
+              <span>aktywny widok</span>
+            </header>
+            <div id="stageBoard" class="stage-board"></div>
+          </section>
+        </main>
+
+        <aside class="detail-gantt-panel">
+          <header>
+            <div>
+              <p>Gantt</p>
+              <h2>Szczegoly harmonogramu</h2>
+            </div>
+          </header>
+          <div id="detailGantt" class="detail-gantt"></div>
+        </aside>
+      </div>
+    </div>
+
+    <section class="technical-page hidden" id="technicalPage" aria-label="Warunki techniczne">
+      <div class="technical-shell">
+        <header>
+          <div>
+            <p>Modul projektu</p>
+            <h2 id="technicalTitle">Warunki techniczne</h2>
+          </div>
+          <span>puste okno</span>
+        </header>
+        <div class="technical-empty">
+          <p id="technicalMessage">Warunki techniczne - tutaj dodamy zawartosc</p>
+          <div class="technical-feedback">
+            <a href="mailto:kidznok@gmail.com?subject=ZK%20Manager%20-%20feedback" title="Podziel sie pomyslem">@</a>
+            <span>Mozesz podzielic sie pomyslem</span>
+          </div>
+        </div>
+        <div class="branches-board hidden" id="branchesBoard" aria-label="Kanban branz"></div>
+      </div>
+    </section>
+
+    <section class="secret-page hidden" id="secretPage" aria-label="Modul ukryty">
+      <div class="secret-shell">
+        <header>
+          <h2 id="secretProjectName">EKSPLORATOR</h2>
+          <button id="secretRefreshBtn" type="button" title="Odswiez Eksplorator" aria-label="Odswiez Eksplorator">↻</button>
+          <span id="secretCurrentPath" class="hidden" aria-hidden="true"></span>
+        </header>
+        <div class="secret-explorer" id="secretExplorer">
+          <aside class="secret-tree-pane" aria-label="Drzewo folderow">
+            <div class="secret-pane-title secret-tree-title">
+              <div class="secret-tree-controls">
+                <button id="secretTreeModeBtn" class="active" type="button" title="Widok drzewka" aria-label="Widok drzewka">♧</button>
+                <button id="secretColumnsModeBtn" type="button" title="Widok kolumnowy" aria-label="Widok kolumnowy">▥</button>
+                <button id="secretExpandAllBtn" type="button" title="Rozwin wszystkie poziomy" aria-label="Rozwin wszystkie poziomy">⊞</button>
+                <button id="secretCollapseAllBtn" type="button" title="Zwin wszystkie poziomy" aria-label="Zwin wszystkie poziomy">⊟</button>
+                <button id="secretTreeFontDown" type="button" title="Zmniejsz tekst" aria-label="Zmniejsz tekst">A−</button>
+                <button id="secretTreeFontUp" type="button" title="Powieksz tekst" aria-label="Powieksz tekst">A+</button>
+              </div>
+            </div>
+            <div class="secret-tree" id="secretTree"></div>
+          </aside>
+          <div class="secret-splitter" id="secretSplitter" role="separator" aria-orientation="vertical" aria-label="Zmien szerokosc paneli"></div>
+          <section class="secret-files-pane" aria-label="Pliki w folderze">
+            <div class="secret-pane-title secret-files-title">
+              <span>Pliki</span>
+              <input id="secretFilesSearch" type="search" placeholder="Szukaj plikow..." />
+              <button id="secretOptionsBtn" type="button" title="Kolumny i rozszerzenia">⚙</button>
+              <div class="secret-options-panel hidden" id="secretOptionsPanel">
+                <strong>Widoczne kolumny</strong>
+                <div id="secretColumnOptions"></div>
+                <strong>Widoczne rozszerzenia</strong>
+                <div id="secretExtensionOptions"></div>
+              </div>
+            </div>
+            <div class="secret-files" id="secretFiles"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="settings-panel hidden" id="settingsPanel" aria-label="Ustawienia">
+      <header>
+        <strong>Ustawienia</strong>
+      </header>
+      <div class="settings-tabs" role="tablist" aria-label="Typ ustawien">
+        <button class="active" id="settingsUserTab" type="button" data-settings-tab="user">Uzytkownik</button>
+        <button id="settingsProgramTab" type="button" data-settings-tab="program">Program</button>
+      </div>
+      <div class="settings-tab-panel active" id="settingsUserPanel">
+        <label>
+          <span>Kolory tla / motyw</span>
+          <select id="themeSelect">
+            <option value="system">Windows</option>
+            <option value="light">Jasny</option>
+            <option value="dark">Ciemny</option>
+          </select>
+        </label>
+        <label class="settings-color-row">
+          <span>Kolor naglowkow / nawigacji</span>
+          <input id="accentColorInput" type="color" value="#2f6272" />
+        </label>
+        <div class="settings-user-icon">
+          <strong>Ikona uzytkownika</strong>
+          <label>
+            <span>Inicjaly</span>
+            <input id="userInitialsInput" type="text" maxlength="2" autocomplete="off" placeholder="JN" />
+          </label>
+          <label class="settings-color-row">
+            <span>Kolor ikony</span>
+            <input id="userColorInput" type="color" value="#246b83" />
+          </label>
+        </div>
+        <label class="settings-check">
+          <input id="technicalReminderToggle" type="checkbox" />
+          <span>Przypomnienia Outlook do warunkow technicznych</span>
+        </label>
+        <div class="settings-chat-options">
+          <strong>Powiadomienia czatu</strong>
+          <label class="settings-check">
+            <input id="chatNotifyBadgeToggle" type="checkbox" />
+            <span>Pokazuj licznik nowych wiadomosci</span>
+          </label>
+          <label class="settings-check">
+            <input id="chatNotifyFlashToggle" type="checkbox" />
+            <span>Mrugaj ikona na pasku zadan</span>
+          </label>
+        </div>
+        <div class="settings-leave">
+          <strong>Urlopy</strong>
+          <button id="takeLeaveBtn" type="button">Wez urlop</button>
+        </div>
+        <div class="settings-my-projects">
+          <strong>Moje projekty</strong>
+          <div id="myProjectsList" class="my-projects-list"></div>
+          <p>Wybrane projekty beda widoczne w panelu projektow i na Twoim pulpicie.</p>
+        </div>
+      </div>
+      <div class="settings-tab-panel" id="settingsProgramPanel">
+        <label class="settings-check">
+          <input id="workWeekendsToggle" type="checkbox" />
+          <span>Pracuj w weekendy</span>
+        </label>
+        <div class="settings-employee-base">
+          <strong>Baza pracownikow</strong>
+          <div id="employeeBaseList" class="employee-base-list"></div>
+          <p>Lista tworzy sie automatycznie z osob, ktore uruchomily aplikacje na tej samej bazie danych.</p>
+        </div>
+        <div class="settings-data-folder">
+          <strong>Sciezka bazy danych</strong>
+          <label>
+            <span>Folder bazy danych</span>
+            <input id="dataFolderPath" type="text" placeholder="np. \\\\SERWER\\ZKManager\\Data" />
+          </label>
+          <div>
+            <button id="dataFolderBrowse" type="button">Wybierz</button>
+          </div>
+          <p id="dataFolderStatus">Tu sa zapisywane wspolne dane programu. Po zmianie uruchom ZK Manager ponownie.</p>
+        </div>
+        <div class="settings-folder-map">
+          <strong>Sciezka projektow</strong>
+          <label>
+            <span>Folder z projektami</span>
+            <input id="topicFoldersRoot" type="text" placeholder="np. Z:\\Projekty albo \\\\SERWER\\Projekty" />
+          </label>
+          <div>
+            <button id="topicFoldersBrowse" type="button">Wybierz</button>
+            <button id="topicFoldersMap" type="button">Mapuj linki</button>
+          </div>
+          <p id="topicFoldersStatus">Wskaz folder, w ktorym sa katalogi projektow. Program dopasuje foldery projektow, etapow i zadan po podobienstwie nazw.</p>
+        </div>
+        <div class="settings-branch-types">
+          <strong>Branze</strong>
+          <div id="branchTypesList" class="branch-types-list"></div>
+          <button id="addBranchTypeBtn" type="button">+ branza</button>
+          <p>Te nazwy i kolory sa wspolne dla calej bazy i pojawiaja sie w module Branze.</p>
+        </div>
+        <div class="settings-update">
+          <strong>Aktualizacje</strong>
+          <label>
+            <span>Manifest GitHub</span>
+            <input id="updateManifestUrl" type="text" placeholder="https://api.github.com/repos/uzytkownik/repo/releases/latest" />
+          </label>
+          <div>
+            <button id="checkUpdatesBtn" type="button">Sprawdz teraz</button>
+          </div>
+          <p id="updateStatus">Publiczny manifest JSON albo GitHub Releases API. Login i haslo nie sa potrzebne dla publicznego repozytorium.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="leave-modal hidden" id="leaveModal" aria-label="Urlop">
+      <div class="leave-card">
+        <header>
+          <div>
+            <strong>Wez urlop</strong>
+            <span id="leavePersonLabel">Pracownik</span>
+          </div>
+          <button id="leaveCloseBtn" type="button">Zamknij</button>
+        </header>
+        <div class="leave-month-nav">
+          <button id="leavePrevMonth" type="button">&lt;</button>
+          <strong id="leaveMonthLabel">miesiac</strong>
+          <button id="leaveNextMonth" type="button">&gt;</button>
+        </div>
+        <div class="leave-calendar" id="leaveCalendar"></div>
+        <div class="leave-actions">
+          <button id="leaveClearSelection" type="button">Wyczysc wybor</button>
+          <button id="leaveSaveBtn" type="button">Zapisz urlop</button>
+        </div>
+        <div class="leave-list" id="leaveList"></div>
+      </div>
+    </section>
+
+    <section class="letters-page hidden" id="lettersModal" aria-label="Pisma">
+      <div class="letters-shell">
+        <header>
+          <div>
+            <p>Modul pism</p>
+            <h2 id="lettersTitle">Pisma projektu</h2>
+            <span id="lettersStatus">Skanowanie folderu PISMA...</span>
+          </div>
+          <div class="letters-tools">
+            <label>
+              Sortuj
+              <select id="lettersSort">
+              </select>
+            </label>
+            <button id="lettersLinkBtn" type="button">Dodaj do watku</button>
+            <button id="lettersUnlinkBtn" type="button">Usun z watku</button>
+            <button id="lettersShowLinkBtn" type="button">Pokaz watek</button>
+            <button id="lettersRefreshBtn" type="button">Odswiez</button>
+            <button id="lettersColumnsBtn" type="button" title="Kolumny">⚙</button>
+          </div>
+        </header>
+        <div class="letters-column-panel hidden" id="lettersColumnPanel">
+          <strong>Widoczne kolumny</strong>
+          <div id="lettersColumnOptions"></div>
+          <strong>Widoczne rozszerzenia</strong>
+          <div id="lettersExtensionOptions"></div>
+          <strong>Kolory podfolderow</strong>
+          <div id="lettersFolderColorOptions"></div>
+        </div>
+        <div class="letters-columns">
+          <section>
+            <header>
+              <div>
+                <h3>Wychodzace</h3>
+                <input id="lettersOutgoingSearch" type="search" placeholder="Szukaj wychodzacych..." />
+              </div>
+              <span id="lettersOutgoingCount" class="letters-count-summary">Liczba pism - 0 | Liczba pism z odpowiedzia - 0</span>
+            </header>
+            <div class="letters-list" id="lettersOutgoing"></div>
+          </section>
+          <button class="letters-splitter" id="lettersSplitter" type="button" aria-label="Zmien szerokosc kolumn pism"></button>
+          <section>
+            <header>
+              <div>
+                <h3>Przychodzące</h3>
+                <input id="lettersIncomingSearch" type="search" placeholder="Szukaj przychodzących..." />
+              </div>
+              <span id="lettersIncomingCount" class="letters-count-summary">Liczba pism - 0 | Liczba pism z odpowiedzia - 0</span>
+            </header>
+            <div class="letters-list" id="lettersIncoming"></div>
+          </section>
+        </div>
+        <button class="letters-thread-splitter" id="lettersThreadSplitter" type="button" aria-label="Zmien wysokosc panelu watku"></button>
+        <section class="letters-thread-panel" id="lettersThreadPanel" aria-label="Podglad watku">
+          <aside class="letters-thread-index">
+            <header>
+              <div class="letters-thread-index-title">
+                <strong>WATKI</strong>
+                <button id="lettersThreadNarrowBtn" type="button" title="Zmniejsz kafelki zaznaczonego wątku" aria-label="Zmniejsz kafelki zaznaczonego wątku">−</button>
+                <button id="lettersThreadWidenBtn" type="button" title="Powiększ kafelki zaznaczonego wątku" aria-label="Powiększ kafelki zaznaczonego wątku">+</button>
+              </div>
+              <input id="lettersThreadSearch" type="search" placeholder="Szukaj watkow..." aria-label="Szukaj watkow" />
+            </header>
+            <div id="lettersThreadList" class="letters-thread-list"></div>
+          </aside>
+          <button class="letters-thread-index-splitter" id="lettersThreadIndexSplitter" type="button" aria-label="Zmien szerokosc listy watkow"></button>
+          <div class="letters-thread-detail">
+            <header>
+              <div>
+                <h3 id="lettersThreadName">Watek</h3>
+                <span id="lettersThreadSummary">Wybierz watek z listy albo zaznacz pismo i kliknij „Pokaz watek”.</span>
+              </div>
+            </header>
+            <div class="letters-thread-content" id="lettersThreadContent">
+              <div class="letters-thread-empty">Tutaj pojawi sie caly watek korespondencji.</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="team-chat collapsed" id="teamChat" aria-label="Komunikator">
+      <button class="team-chat-toggle" id="teamChatToggle" type="button">
+        <span>Komunikator</span>
+        <strong id="teamChatUnread" class="notification-badge hidden">0</strong>
+      </button>
+      <button class="team-chat-resize" id="teamChatResize" type="button" aria-label="Zmien rozmiar komunikatora"></button>
+      <div class="team-chat-panel">
+        <header>
+          <div>
+            <strong>ZK Komunikator</strong>
+            <span id="teamChatStatus">wspólny czat</span>
+          </div>
+          <button id="teamChatClose" type="button" aria-label="Zamknij komunikator">×</button>
+        </header>
+        <div class="team-chat-recipient">
+          <span>Rozmowy</span>
+          <button id="teamChatClear" type="button" title="Wyczysc historie tej rozmowy">Historia</button>
+          <select id="teamChatRecipient" title="Rozpocznij nowa rozmowe">
+            <option value="">+ nowa rozmowa</option>
+          </select>
+          <div class="team-chat-recipient-list" id="teamChatRecipients" role="listbox" aria-label="Lista rozmow"></div>
+        </div>
+        <div class="team-chat-messages" id="teamChatMessages"></div>
+        <form class="team-chat-form" id="teamChatForm">
+          <button id="teamBoardOpen" class="team-board-open" type="button" title="Otworz wspolna tablice" aria-label="Otworz wspolna tablice"></button>
+          <button id="teamChatEmojiBtn" class="team-chat-emoji-btn" type="button" title="Emotki" aria-label="Wybierz emotke">😊</button>
+          <div id="teamChatEmojiPanel" class="team-chat-emoji-panel hidden" aria-label="Emotki"></div>
+          <input id="teamChatInput" type="text" placeholder="Napisz wiadomość..." autocomplete="off" />
+          <button type="submit">Wyślij</button>
+          <button id="teamChatPathBtn" class="team-chat-path-btn" type="button" title="Wyslij link do pliku lub folderu" aria-label="Wyslij link">🔗</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="shared-board hidden" id="sharedBoard" aria-label="Wspolna tablica">
+      <div class="shared-board-shell">
+        <header>
+          <div>
+            <strong>Wspolna tablica</strong>
+            <span id="sharedBoardStatus">rysunek i uwagi zespolu</span>
+          </div>
+          <div class="shared-board-tools">
+            <button class="board-tool active" data-board-tool="pen" type="button" title="Rysuj odrecznie" aria-label="Rysuj odrecznie">✎</button>
+            <button class="board-tool" data-board-tool="line" type="button" title="Linia" aria-label="Linia">╱</button>
+            <button class="board-tool" data-board-tool="circle" type="button" title="Okrag" aria-label="Okrag">○</button>
+            <label class="board-file-button">
+              Obraz
+              <input id="sharedBoardFile" type="file" accept="image/*" />
+            </label>
+            <label>
+              Kolor
+              <input id="sharedBoardColor" type="color" value="#ff3b30" />
+            </label>
+            <button id="sharedBoardClear" type="button">Wyczysc kreski</button>
+            <button id="sharedBoardSend" type="button">Odeslij</button>
+            <button id="sharedBoardClose" type="button">Zamknij</button>
+          </div>
+        </header>
+        <div class="shared-board-body">
+          <div class="shared-board-canvas-wrap">
+            <canvas id="sharedBoardCanvas" width="1200" height="800"></canvas>
+            <div class="shared-board-empty" id="sharedBoardEmpty">Rysuj po bialej kartce albo wklej screenshot Ctrl+V.</div>
+          </div>
+          <aside>
+            <strong>Rozmowa</strong>
+            <div id="sharedBoardChat" class="shared-board-chat"></div>
+            <form id="sharedBoardChatForm" class="shared-board-chat-form">
+              <input id="sharedBoardChatInput" type="text" placeholder="Napisz komentarz..." autocomplete="off" />
+              <button type="submit">Wyslij</button>
+            </form>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <dialog class="zk-dialog" id="zkDialog" aria-labelledby="zkDialogTitle">
+      <form class="zk-dialog-card" id="zkDialogForm" method="dialog">
+        <header class="zk-dialog-header">
+          <h2 id="zkDialogTitle">ZK Manager</h2>
+          <button class="zk-dialog-close" id="zkDialogClose" type="button" aria-label="Zamknij">×</button>
+        </header>
+        <div class="zk-dialog-body">
+          <p id="zkDialogMessage"></p>
+          <input class="zk-dialog-input hidden" id="zkDialogInput" type="text" autocomplete="off" />
+        </div>
+        <footer class="zk-dialog-actions">
+          <button class="zk-dialog-secondary" id="zkDialogCancel" type="button">Anuluj</button>
+          <button class="zk-dialog-primary" id="zkDialogAccept" type="submit">OK</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <div class="demo-tour hidden" id="demoTour" aria-live="polite">
+      <div class="demo-tour-spotlight" id="demoTourSpotlight"></div>
+      <section class="demo-tour-card" id="demoTourCard" role="dialog" aria-modal="true" aria-labelledby="demoTourTitle">
+        <small id="demoTourProgress">DEMO</small>
+        <h2 id="demoTourTitle">Poznaj ZK Manager</h2>
+        <p id="demoTourText"></p>
+        <footer>
+          <button id="demoTourClose" type="button">Zakończ</button>
+          <span></span>
+          <button id="demoTourPrev" type="button">Wstecz</button>
+          <button id="demoTourNext" type="button">Dalej</button>
+        </footer>
+      </section>
+    </div>
+
+    <script src="demo-online.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
